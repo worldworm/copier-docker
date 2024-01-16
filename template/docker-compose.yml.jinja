@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  {{ project_name }}{{ "-" ~ subdir_name if use_subdir else "" }}:
+    image: {{ repository_username }}/{{ project_name }}{{ "-" ~ subdir_name if use_subdir else "" }}:latest
+    build: {{ subdir_name }}
+    container_name: {{ project_name }}{{ "-" ~ subdir_name if use_subdir else "" }}
+    restart: unless-stopped
+    # env_file: {{ subdir_name ~ "/" if use_subdir else "" }}.env
+    {% if preset == "node-frontend" -%}
+    ports:
+      - 80:80
+    {%- endif %}

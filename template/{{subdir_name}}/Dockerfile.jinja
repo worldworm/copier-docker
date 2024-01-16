@@ -1,0 +1,50 @@
+{% if preset == "node-frontend" -%}
+FROM {{ base_image }} AS build-stage
+
+WORKDIR /app
+
+COPY package.json package-lock.json /app/
+
+RUN npm ci
+
+COPY . /app/
+
+RUN npm run build
+
+
+FROM nginx:stable-alpine AS prod-stage
+{% else -%}
+FROM {{ base_image }}
+{% endif %}
+LABEL maintainer="{{ repository_username }}"
+LABEL description="{{ project_description }}"
+LABEL org.opencontainers.image.authors="{{ repository_username }}"
+LABEL org.opencontainers.image.title="{{ project_name }}"
+LABEL org.opencontainers.image.description="{{ project_description }}"
+LABEL org.opencontainers.image.source="{{ repository_url }}"
+LABEL org.opencontainers.image.licenses="{{ copyright_license }}"
+LABEL org.opencontainers.image.base.name="docker.io/library/{{ base_image }}"
+{% if preset == "python" %}
+WORKDIR /app
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN apk update && \
+    rm -rf /var/cache/apk/* && \
+    pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false
+
+COPY pyproject.toml poetry.lock /app/
+RUN poetry install --only main --no-dev --no-root --no-interaction --no-ansi
+
+COPY . /app/
+
+CMD ["poetry", "run", "python", "-m", "{{ package_import_name }}"]
+{% elif preset == "node-frontend" %}
+COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+{% endif %}

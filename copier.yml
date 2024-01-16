@@ -1,0 +1,77 @@
+_subdirectory: template
+_templates_suffix: .jinja
+_answers_file: .copier-answers.docker.yml
+
+preset:
+  type: str
+  help: Preset
+  default: python
+  choices:
+  - python
+  - node-frontend
+
+use_subdir:
+  type: bool
+  help: Use subdir?
+  default: false
+
+subdir_name:
+  type: str
+  help: Subdir name
+  default: "{{ 'backend' if use_subdir and preset == 'python' else 'frontend' if use_subdir and preset == 'node-frontend' else '.' ~ sep }}"
+  when: "{{ use_subdir }}"
+
+base_image:
+  type: str
+  help: Base image and tag
+  default: "{{ 'python:3.10-alpine' if preset == 'python' else 'node:18-alpine' if preset == 'node-frontend' else '' }}"
+
+project_name:
+  type: str
+  help: Project name
+
+project_description:
+  type: str
+  help: Project description
+
+repository_provider:
+  type: str
+  help: Repository provider
+  default: GitHub
+  choices:
+  - GitHub
+  - GitLab
+
+repository_host:
+  type: str
+  help: Repository host
+  when: "{{ repository_provider == 'GitLab' }}"
+  default: "{{ 'gitlab.com' if repository_provider == 'GitLab' else 'github.com' }}"
+
+repository_username:
+  type: str
+  help: Repository username
+
+repository_name:
+  type: str
+  help: Repository name
+  default: "{{ project_name|lower|replace('_', '-')|replace(' ', '-') }}"
+
+repository_url:
+  type: str
+  help: Repository URL
+  default: "https://{{ repository_host if repository_provider == 'GitLab' else 'github.com' }}/{{ repository_username }}/{{ repository_name }}"
+
+copyright_license:
+  type: str
+  help: Project license
+  default: MIT
+  choices:
+  - MIT
+  -
+
+package_import_name:
+  type: str
+  help: Package import name (for `import NAME` in Python code)
+  default: "{{ project_name|lower|replace('-', '_')|replace(' ', '_') }}"
+  when: "{{ preset == 'python' }}"
