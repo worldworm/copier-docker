@@ -24,9 +24,10 @@ LABEL org.opencontainers.image.description="{{ project_description }}"
 LABEL org.opencontainers.image.source="{{ repository_url }}"
 LABEL org.opencontainers.image.licenses="{{ copyright_license }}"
 LABEL org.opencontainers.image.base.name="docker.io/library/{{ base_image }}"
-{% if preset == "python" %}
+{% if preset == "None" or preset == "python" %}
 WORKDIR /app
-
+{% endif -%}
+{% if preset == "python" %}
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 

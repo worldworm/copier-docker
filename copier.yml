@@ -9,6 +9,7 @@ preset:
   choices:
   - python
   - node-frontend
+  -
 
 use_subdir:
   type: bool
@@ -18,7 +19,7 @@ use_subdir:
 subdir_name:
   type: str
   help: Subdir name
-  default: "{{ 'backend' if use_subdir and preset == 'python' else 'frontend' if use_subdir and preset == 'node-frontend' else '.' ~ sep }}"
+  default: "{{ 'backend' if use_subdir and preset == 'python' else 'frontend' if use_subdir and preset == 'node-frontend' else '' if use_subdir and preset == 'None' else '.' ~ sep }}"
   when: "{{ use_subdir }}"
 
 base_image:
