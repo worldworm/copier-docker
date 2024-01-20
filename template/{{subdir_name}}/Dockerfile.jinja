@@ -41,7 +41,7 @@ RUN poetry install --only main --no-dev --no-root --no-interaction --no-ansi
 
 COPY . /app/
 
-CMD ["poetry", "run", "python", "-m", "{{ package_import_name }}"]
+CMD ["poetry", "run", "python", "-m", "{{ package_import_name }}.main"]
 {% elif preset == "node-frontend" %}
 COPY --from=build-stage /app/dist/spa /usr/share/nginx/html
 
